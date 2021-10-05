@@ -1,0 +1,17 @@
+# local package
+-e .
+
+# external requirements
+pandas
+numpy 
+dash
+plotly
+dash-bootstrap-components
+dash-auth
+gunicorn
+joblib
+mlflow
+sklearn
+boto3
+statsmodels
+python-dotenv>=0.5.1
