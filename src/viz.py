@@ -1,6 +1,8 @@
 import plotly.graph_objects as go
 import pandas as pd
 
+from dash_table import DataTable
+
 
 def bar():
     animals=['giraffes', 'orangutans', 'monkeys']
@@ -53,3 +55,24 @@ def radar(data: pd.DataFrame, joueur_2021: str, joueur_2020: str, players_mappin
 
 
     return fig
+
+
+def information_table(data: pd.DataFrame, player: str, season: str, players_mapping: dict):
+    """
+    Generates the information table.
+    """
+    df = data.query(f"saison=={season} and nom=='{players_mapping[player]}'")
+    df = df[['nationalité', 'age', 'tailles', 'poids', 'Repêché']]
+
+    #import pdb; pdb.set_trace()
+    table = DataTable(
+        columns=[{"name": i, "id": i} for i in df.columns],
+        data = df.to_dict("records"),
+        style_cell={"textAlign": "center", "font_size": "14px"},
+        style_data_conditional=[
+            {"if": {"row_index": "odd"}, "backgroundColor": "rgb(248, 248, 248)"}
+        ],
+        style_header={"backgroundColor": "rgb(230, 230, 230)", "fontWeight": "bold"},
+        style_as_list_view=False,
+    )
+    return table

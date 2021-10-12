@@ -49,60 +49,14 @@ CONTENT_STYLE = {
     "padding": "2rem 1rem",
 }
 
-info_player = [
-    "short_name",
-    "nationality",
-    "club_name",
-    "age",
-    "height_cm",
-    "weight_kg",
-]
-labels_table = ["Player", "Nationality", "Club", "Age", "Height (cm)", "Weight (kg)"]
-
-df = pd.DataFrame({"short_name": "Jeff Petry", "nationality": "Canadien",
-                   "club_name": "Canadiens", "age": 32, "height_cm": 180, "weight_kg": 180}, index=[0])
-
-player_table = DataTable(
-    columns=[
-        {"name": col, "id": info_player[idx]} for (idx, col) in enumerate(labels_table)
-    ],
-    data=df.to_dict("records"),
-    style_cell={"textAlign": "left", "font_size": "14px"},
-    style_data_conditional=[
-        {"if": {"row_index": "odd"}, "backgroundColor": "rgb(248, 248, 248)"}
-    ],
-    style_header={"backgroundColor": "rgb(230, 230, 230)", "fontWeight": "bold"},
-)
 
 player_info_card = dbc.Card(
                         dbc.CardBody([
                             html.Div("Position"),
                             html.Div("Center")
                         ]),
-                        className="box"
+                        className="info_card"
                     )
-
-player_card_ = dbc.Container(
-        dbc.Col(
-            dbc.Card(
-                children=[
-                    dbc.Row(
-                        player_table
-                    ),
-                    dbc.Row(
-                        dbc.CardDeck(
-                            children=[
-                                player_info_card,
-                                player_info_card,
-                                player_info_card,
-                                player_info_card
-                            ]
-                        )
-                    )
-                ]
-            ), 
-        width=5), 
-    fluid=True)
 
 
 class Layout:
@@ -123,6 +77,8 @@ class Layout:
                         dbc.Col(html.Img(src="assets/img/ch.svg", className="ch"), className="ch"),
                         dbc.Col(html.Img(src="assets/img/gohabsgo.png", height="30px")),
                         dbc.Col(dbc.NavbarBrand(html.Strong("Joueurs"), className="ml-2 navheader", external_link="/")),
+                        dbc.Col(dbc.NavbarBrand(html.Strong("Équipes"), className="ml-2 navheader", external_link="/")),
+                        dbc.Col(dbc.NavbarBrand(html.Strong("Méthodologie"), className="ml-2 navheader", external_link="/")),
                     ],
                     align="center",
                     no_gutters=True,
@@ -133,7 +89,8 @@ class Layout:
         color="#041c64",
         dark=True,
         sticky='top',   
-        style={"height": "100px", "width":"100%"})
+        #style={"height": "10%", "width":"100%"}
+        className="navbar-top")
         return nav
 
     def dropdown(self, players: List[str], year: int, default: str):
@@ -154,7 +111,7 @@ class Layout:
                 dbc.Row(
                     dbc.Col(
                         dbc.Container(children=[
-                                html.H1(html.Strong("Comparaison des joueurs: 2021-22 Vs. 2020-21")),
+                                html.H1(html.Strong("Comparaison des joueurs")),
                                 html.Hr()
                             ], 
                             fluid=True),
@@ -177,9 +134,10 @@ class Layout:
                             ), width=3),
                             # Row 1 Col 2
                             dbc.Col(dbc.Card(
-                                children=dbc.CardBody(
+                                children=[
+                                    dbc.CardBody(
                                     id="radar"
-                                ), className="box"
+                                )], className="box"
                             ), width=6),
                             # Row 1 Col 3
                             dbc.Col(dbc.Card(
@@ -199,36 +157,10 @@ class Layout:
                             # Information Table
                             dbc.CardDeck(children=[
                                 dbc.Card([
-                                    dbc.CardBody([player_table]),
-                                    dbc.Container(
-                                        dbc.CardDeck(
-                                        [player_info_card,
-                                         player_info_card,
-                                         player_info_card,
-                                         player_info_card],
-                                         className="info_card"
-                                        )
-                                    ),
-                                    dbc.Container(fluid=True,
-                                        children=[dcc.Graph(figure=bar())]
-                                    ),
-                                    html.Br()
+                                    dbc.CardBody(id="info_table_2021")
                                 ], className="box"), 
                                 dbc.Card([
-                                    dbc.CardBody([player_table]),
-                                    dbc.Container(
-                                        dbc.CardDeck(
-                                        [player_info_card,
-                                         player_info_card,
-                                         player_info_card,
-                                         player_info_card],
-                                         className="info_card"
-                                        )
-                                    ),
-                                    dbc.Container(fluid=True,
-                                        children=[dcc.Graph(figure=bar())]
-                                    ),
-                                    html.Br()
+                                    dbc.CardBody(id="info_table_2020"),
                                 ], className="box")
                             ])
                         ])

@@ -2,14 +2,13 @@
 import os
 
 import dash
-import dash_auth
 import dash_bootstrap_components as dbc
 import pandas as pd
 from dotenv import load_dotenv
 from dash import html, dcc
 from dash.dependencies import Input, Output
 
-from src.viz import radar
+from src.viz import radar, information_table
 from src.layout import Layout
 from src.utils import read_json
 
@@ -20,14 +19,9 @@ if not os.environ.get("ADMIN"):
 else:
     debug = False
 
-# Credentials
-VALID_USERNAME_PASSWORD_PAIRS = {
-    'admin': os.environ.get("ADMIN"),
-    'dev': "DO_NOT_LEAVE_THIS_PASSWORD"
-}
-
 # Load data
 scores = pd.read_csv("data/processed/scores.csv")
+info_table = pd.read_csv("data/processed/players_info.csv", sep=";")
 
 app = dash.Dash(
     __name__,
@@ -35,12 +29,6 @@ app = dash.Dash(
                           dbc.themes.BOOTSTRAP],
     title="ds-coach-nhl",
     meta_tags=[{"name": "viewport", "content": "width=device-width"}],
-)
-
-# Auth
-auth = dash_auth.BasicAuth(
-    app,
-    VALID_USERNAME_PASSWORD_PAIRS
 )
 
 # Describe the layout/ UI of the app
@@ -60,6 +48,30 @@ def update_photo2021(name):
                     #height="405px",
                     #width="375px",
                     className="img")
+
+
+@app.callback(
+    Output(component_id='info_table_2020', component_property='children'),
+    Input(component_id='dd_2020', component_property='value')
+)
+def update_table_2020(name):
+    players = read_json("config/players.json")
+    players_mapping = {player.replace(" ", "").lower(): player
+                       for player in set(players['2020'] + players['2021'])}
+    return information_table(data=info_table, player=name, season=2020,
+                             players_mapping=players_mapping)
+
+
+@app.callback(
+    Output(component_id='info_table_2021', component_property='children'),
+    Input(component_id='dd_2021', component_property='value')
+)
+def update_table_2020(name):
+    players = read_json("config/players.json")
+    players_mapping = {player.replace(" ", "").lower(): player
+                       for player in set(players['2020'] + players['2021'])}
+    return information_table(data=info_table, player=name, season=2021,
+                             players_mapping=players_mapping)
 
 
 @app.callback(
@@ -94,4 +106,4 @@ def update_radar(joueur_2021, joueur_2020):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=debug, dev_tools_hot_reload=True, port=8080)
+    app.run_server(debug=debug, dev_tools_hot_reload=True, port=8182)
