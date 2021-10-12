@@ -20,7 +20,7 @@ else:
     debug = False
 
 # Load data
-scores = pd.read_csv("data/processed/scores.csv")
+scores = pd.read_csv("data/processed/scores_2021-10-12.csv")
 info_table = pd.read_csv("data/processed/players_info.csv", sep=";")
 
 app = dash.Dash(
@@ -93,7 +93,7 @@ def update_photo2020(name):
     [Input(component_id="dd_2021", component_property="value"),
      Input(component_id="dd_2020", component_property="value")])
 def update_radar(joueur_2021, joueur_2020):
-    scores = pd.read_csv("data/processed/scores.csv")
+    scores = pd.read_csv("data/processed/scores_2021-10-12.csv")
     scores['name'] = scores['name'].apply(lambda x: x.replace(" ", "").lower())
     players = read_json("config/players.json")
     players_mapping = {player.replace(" ", "").lower(): player
@@ -101,9 +101,11 @@ def update_radar(joueur_2021, joueur_2020):
     return dcc.Graph(figure=radar(data=scores,
                                   joueur_2021=joueur_2021,
                                   joueur_2020=joueur_2020,
-                                  players_mapping=players_mapping), className="radar_graph")
+                                  players_mapping=players_mapping), className="radar_graph", config={
+        'displayModeBar': False
+    })
 
 
 
 if __name__ == "__main__":
-    app.run_server(debug=debug, dev_tools_hot_reload=True, port=8182)
+    app.run_server(debug=debug, dev_tools_hot_reload=True, port=8282)

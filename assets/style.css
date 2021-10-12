@@ -80,3 +80,10 @@ h1 {
     background-color: #f8f9fa;
     align-items: center;
 }
+
+.footer {
+    background-color: #041c64;
+    color: white;
+    max-width:2000px;
+    min-width:1250px;
+}

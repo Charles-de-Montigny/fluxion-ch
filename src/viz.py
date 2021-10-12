@@ -11,22 +11,26 @@ def bar():
 
 
 def radar(data: pd.DataFrame, joueur_2021: str, joueur_2020: str, players_mapping: dict):
-    categories = ['Shooting', 'Physical', 'Passing']
+    categories = ['Marqueur', 'Physique', 'Passeur', 'Experience', 'Défensive']
 
     fig = go.Figure()
 
     fig.add_trace(go.Scatterpolar(
         r=list(data.query(f"name=='{joueur_2020}' and season==2019")[
-            ['shooting_score', 'physical_score', 'passing_score']].values[0]),
+            ['shooting_score', 'physical_score', 'passing_score', 'exp_score', 'defending_score']].values[0]),
         theta=categories,
         fill='toself',
+        fillcolor="#041c64",
+        opacity=0.55,
         name=players_mapping[joueur_2020] + " - 2020"
     ))
     fig.add_trace(go.Scatterpolar(
         r=list(data.query(f"name=='{joueur_2021}' and season==2020")[
-            ['shooting_score', 'physical_score', 'passing_score']].values[0]),
+            ['shooting_score', 'physical_score', 'passing_score', 'exp_score', 'defending_score']].values[0]),
         theta=categories,
         fill='toself',
+        fillcolor="#a41c2c",
+        opacity=0.55,
         name=players_mapping[joueur_2021] + " - 2021"
     ))
     fig.update_layout(
@@ -43,7 +47,7 @@ def radar(data: pd.DataFrame, joueur_2021: str, joueur_2020: str, players_mappin
                 ticks="",
             ),
         ),
-        paper_bgcolor="#f8f9fa",
+        #paper_bgcolor="#f8f9fa",
         showlegend=True,
         legend=dict(
             orientation="h",
@@ -52,7 +56,6 @@ def radar(data: pd.DataFrame, joueur_2021: str, joueur_2020: str, players_mappin
             xanchor="right",
             x=1)
     )
-
 
     return fig
 

@@ -1,5 +1,7 @@
+from datetime import datetime as dt
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from src.utils import read_json
@@ -11,7 +13,7 @@ def concat_dataset(data_path: Path=DATA_PATH) -> pd.DataFrame:
     """
     Concatenate skaters datasets.
     """
-    years = range(2016, 2021)
+    years = range(2009, 2021)
     df = pd.DataFrame()
     for year in years:
         print(f"Data year: {year}")
@@ -66,6 +68,15 @@ class Score:
         self.skaters['secondary_per_game'] = self.skaters['I_F_secondaryAssists'] / self.skaters['games_played']
         self.skaters['hits_per_game'] = self.skaters['I_F_hits'] / self.skaters['games_played']
         self.skaters['pim_per_game'] = self.skaters['I_F_penalityMinutes'] / self.skaters['games_played']
+        self.skaters['plus-minus'] = (self.skaters['OnIce_F_xGoals'] - self.skaters['OnIce_A_xGoals']) / self.skaters['games_played']
+        self.skaters['block_shot_per_game'] = self.skaters['shotsBlockedByPlayer'] / self.skaters['games_played']
+        self.skaters['dzone_faceoff_per_game'] = self.skaters['I_F_dZoneShiftStarts'] / self.skaters['games_played']
+        self.skaters['giveaway_per_game'] = np.where(self.skaters['I_F_dZoneGiveaways'] != 0, 
+                                                     1 / (self.skaters['I_F_dZoneGiveaways'] / self.skaters['games_played']), 0)
+        # Exp
+        exp_cumsum = self.skaters.groupby("name")[['games_played', 'icetime']].cumsum().rename(
+            columns={"games_played": "games_played_sum", "icetime": "icetime_sum"})
+        self.skaters[exp_cumsum.columns] = exp_cumsum
         # Compute Rank
         self.shooting_df['shooting'] = self.skaters.groupby(["season"])[
             ['goal_per_game', 'shot_per_game', 'goal_pct']].rank(pct=True).mean(axis=1)
@@ -73,12 +84,16 @@ class Score:
             ['primary_per_game', 'secondary_per_game']].rank(pct=True).mean(axis=1)
         self.shooting_df['physical'] = self.skaters.groupby("season")[
             ['hits_per_game', "pim_per_game"]].rank(pct=True).mean(axis=1)
+        self.shooting_df['experience'] = self.skaters.groupby("season")[
+            ['games_played_sum', 'icetime_sum']].rank(pct=True).mean(axis=1)
+        self.shooting_df['defending'] = self.skaters.groupby(["season", "position"])[
+            ['block_shot_per_game', 'giveaway_per_game', 'dzone_faceoff_per_game']].rank(pct=True).mean(axis=1) # , 'takeaway_per_game', 'giveaway_per_game'
         # Adjusted Shooting
         adjusted_shooting = self.shooting_df.groupby(["name"])[
-            'shooting', 'passing', 'physical'].ewm(com=0.2).mean().reset_index().drop("level_1", axis=1)
-        adjusted_shooting.columns = ['name_x', 'adjusted_shooting', 'adjusted_passing', 'adjusted_physical']
+            'shooting', 'passing', 'physical', 'defending'].ewm(com=0.2).mean().reset_index().drop("level_1", axis=1)
+        adjusted_shooting.columns = ['name_x', 'adjusted_shooting', 'adjusted_passing', 'adjusted_physical', 'adjusted_defending']
         self.shooting_df = pd.concat([self.shooting_df, adjusted_shooting], axis=1)
-        self.shooting_df.drop(['name_x', 'shooting', 'passing', 'physical'], axis=1, inplace=True)
+        self.shooting_df.drop(['name_x', 'shooting', 'passing', 'physical', 'defending'], axis=1, inplace=True)
         mtl2020 = self.shooting_df.loc[self.shooting_df['name'].apply(lambda x: x in self.players['2020']), :].query('season==2019')
         mtl2021 = self.shooting_df.loc[self.shooting_df['name'].apply(lambda x: x in self.players['2021']), :].query('season==2020')
         self.shooting_df = pd.concat([mtl2020, mtl2021], axis=0)
@@ -86,7 +101,9 @@ class Score:
         self.shooting_df['shooting_score'] = self.shooting_df['adjusted_shooting'].apply(lambda x: int(x * 100))
         self.shooting_df['passing_score'] = self.shooting_df['adjusted_passing'].apply(lambda x: int(x * 100))
         self.shooting_df['physical_score'] = self.shooting_df['adjusted_physical'].apply(lambda x: int(x * 100))
-        self.shooting_df.drop(["adjusted_shooting", 'adjusted_passing', 'adjusted_physical'], axis=1, inplace=True)
+        self.shooting_df['exp_score'] = self.shooting_df['experience'].apply(lambda x: int(x * 100))
+        self.shooting_df['defending_score'] = self.shooting_df['adjusted_defending'].apply(lambda x: int(x * 100))
+        self.shooting_df.drop(["adjusted_shooting", 'adjusted_passing', 'adjusted_physical', 'experience', 'adjusted_defending'], axis=1, inplace=True)
         self.shooting_df.sort_values("physical_score", ascending=False, inplace=True)
         self.shooting_df.reset_index(drop=True, inplace=True)
 
@@ -110,40 +127,7 @@ class Score:
         self.experience()
 
 
-def shooting_score(skaters: pd.DataFrame, players: dict=None, pretty: bool=True) -> pd.DataFrame:
-    """
-    Create the shooting DataFrame for the MTL habs.
-    """
-    shooting = skaters[['season', 'name']].copy(deep=True)
-    # Create metrics per game
-    skaters['goal_pct'] = skaters['I_F_goals'] / skaters['OnIce_F_shotsOnGoal']
-    skaters['goal_per_game'] = skaters['I_F_goals'] / skaters['games_played']
-    skaters['shot_per_game'] = skaters['OnIce_F_shotsOnGoal'] / skaters['games_played']
-    # Compute Rank
-    shooting['shooting'] = skaters.groupby("season")[
-        ['goal_per_game', 'shot_per_game', 'goal_pct']].rank(pct=True).mean(axis=1)
-    # Adjusted Shooting
-    adjusted_shooting = shooting.groupby(["name"])[
-        'shooting'].ewm(com=0.2).mean().to_frame().reset_index().drop("level_1", axis=1)
-    adjusted_shooting.columns = ['name_x', 'adjusted_shooting']
-    # Concat
-    shooting = pd.concat([shooting, adjusted_shooting], axis=1)
-    shooting.drop(['name_x', 'shooting'], axis=1, inplace=True)
-    if players:
-        mtl2020 = shooting.loc[shooting['name'].apply(lambda x: x in players['2020']), :].query('season==2019')
-        mtl2021 = shooting.loc[shooting['name'].apply(lambda x: x in players['2021']), :].query('season==2020')
-        shooting = pd.concat([mtl2020, mtl2021], axis=0)
-    if pretty:
-        shooting['shooting_score'] = shooting['adjusted_shooting'].apply(lambda x: int(x * 100))
-        shooting.drop("adjusted_shooting", axis=1, inplace=True)
-    else:
-        shooting.rename(columns={"adjusted_shooting": "shooting_score"}, inplace=True)
-    return shooting
-
-
-
-
-
 if __name__ == '__main__':
     score = make_dataset(DATA_PATH)
-    score.to_csv(DATA_PATH.joinpath("processed/scores.csv"), index=False)
+    import pdb; pdb.set_trace()
+    score.to_csv(DATA_PATH.joinpath(f"processed/scores_{dt.now().strftime('%Y-%m-%d')}.csv"), index=False)
