@@ -27,7 +27,7 @@ app = dash.Dash(
     __name__,
     external_stylesheets=["https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css",
                           dbc.themes.BOOTSTRAP],
-    title="ds-coach-nhl",
+    title="Fluxion-CH",
     meta_tags=[{"name": "viewport", "content": "width=device-width"}],
 )
 
