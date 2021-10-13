@@ -34,14 +34,24 @@
     margin-bottom: 15px;
 }
 
+.titreequipe {
+    margin-left: 10px;
+    margin-top: 20px;
+}
+
+.markdown {
+    color: black
+}
+
 .ch {
     margin-left: 10px;
     margin-right: 20px;
     height: 75px;
 }
 
-body {
-    background-color: #a41c2c;
+.dd_score {
+    width: 300px;
+    margin-left: 58px;
 }
 
 h1 {
@@ -50,7 +60,8 @@ h1 {
 
 .page {
     width: 310mm;
-    height: 210mm;
+    min-height: 210mm;
+    max-height: 1000mm;
     padding: 0mm;
     margin: 5mm auto auto auto;
     border-radius: 5px;

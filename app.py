@@ -8,9 +8,10 @@ from dotenv import load_dotenv
 from dash import html, dcc
 from dash.dependencies import Input, Output
 
-from src.viz import radar, information_table
+from src.viz import radar, information_table, comp_player_bar
 from src.layout import Layout
 from src.utils import read_json
+from src.base import footer, navbar
 
 # Setup
 if not os.environ.get("ADMIN"):
@@ -32,10 +33,31 @@ app = dash.Dash(
 )
 
 # Describe the layout/ UI of the app
-app.layout = Layout(scores).create()
+app.layout = html.Div(children=[
+    dcc.Location(id="url"),
+    html.Div(id='page-content')
+])
+
 server = app.server
 
 # Callbacks
+@app.callback(
+    Output(component_id="page-content", component_property="children"),
+    Input(component_id="url", component_property="pathname")
+)
+def display_page(pathname):
+    if pathname == "/":
+        return Layout("joueurs", scores, footer, navbar).create()
+    return Layout(pathname.replace("/", ""), scores, footer, navbar).create()
+
+@app.callback(
+    Output(component_id="player_score", component_property="children"),
+    Input(component_id="dd_score", component_property="value")
+)
+def update_player_bar(score):
+    return comp_player_bar(score)
+
+
 @app.callback(
     Output(component_id='photo_2021', component_property='children'),
     Input(component_id='dd_2021', component_property='value')
@@ -108,4 +130,4 @@ def update_radar(joueur_2021, joueur_2020):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=debug, dev_tools_hot_reload=True, port=8282)
+    app.run_server(debug=False, dev_tools_hot_reload=True, port=8180)
