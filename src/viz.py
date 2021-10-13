@@ -32,7 +32,8 @@ def comp_player_bar(score: str):
     df = pd.read_csv('data/processed/scores_2021-10-12.csv')
     fig2021 = player_bar(df=df, score=score, season=2021)
     fig2020 = player_bar(df=df, score=score, season=2020)
-    return html.Div(children=[dcc.Graph(figure=fig2021), dcc.Graph(figure=fig2020)])
+    return html.Div(children=[dcc.Graph(figure=fig2021, config={'displayModeBar': False}),
+                              dcc.Graph(figure=fig2020, config={'displayModeBar': False})])
 
 
 def edition_bar():

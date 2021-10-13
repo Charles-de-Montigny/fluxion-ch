@@ -130,4 +130,4 @@ def update_radar(joueur_2021, joueur_2020):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=False, dev_tools_hot_reload=True, port=8180)
+    app.run_server(debug=False, dev_tools_hot_reload=True, port=8181)

@@ -72,7 +72,7 @@ class Layout:
                     html.Hr(),
                     html.Br(),
                     html.H2(html.Strong("Édition 2021-22 Vs. 2020-21"), className='titreequipe'),
-                    dcc.Graph(figure=edition_bar()),
+                    dcc.Graph(figure=edition_bar(), config={'displayModeBar': False}),
                     html.Hr(),
                     self.dd_score(),
                     html.Div(id="player_score"),
@@ -90,6 +90,8 @@ class Layout:
                     * MoneyPuck.com
                     * NHL.com
                     * HockeyDB.com
+
+                    *Les détails méthodologiques sont à venir.*
                     ''', className='markdown')
                 ]
                 )
