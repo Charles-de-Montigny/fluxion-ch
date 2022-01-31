@@ -1,27 +1,15 @@
-ds-coach-nhl
+Montreal Canadiens Comparator 2020-21 Vs. 2021-22
 ==============================
 
-Anlytic for NHL Teams and Players
+Presents the difference between the skill sets of the 2020-21 vs. 2021-22 Montreal Canadiens' players.
 
-## Requirements to use the cookiecutter template:
-
- - Python 3.5+
- - [Cookiecutter Python package](http://cookiecutter.readthedocs.org/en/latest/installation.html) >= 1.4.0: This can be installed with pip by or conda depending on how you manage your Python packages:
-
-``` bash
-$ pip install cookiecutter
-```
-or
-``` bash
-$ conda config --add channels conda-forge
-$ conda install cookiecutter
-```
+You can use the live app with this [link](https://fluxion-ch.herokuapp.com/).
 
 ## Getting started
 
 **Clone the repository**
 ``` bash
-$ git clone https://gitlab.com/flux1on/ds-coach-nhl.git
+$ git clone https://github.com/Charles-de-Montigny/ds-coach-nhl
 ```
 
 **Create virtual environnement**
@@ -62,8 +50,6 @@ Project Organization
     │   ├── processed      <- The final, canonical data sets for modeling.
     │   └── raw            <- The original, immutable data dump.
     │
-    ├── notebooks          <- Jupyter notebooks for exploration and experimentation.
-    │
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
     │
@@ -82,5 +68,3 @@ Project Organization
     
 
 --------
-
-<p><small>Project created by <a target="_blank" href="https://www.fluxion.ca">cookiecutter dashdev project template</a>. #cookiecutterdashdev</small></p>
