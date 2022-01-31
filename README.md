@@ -5,7 +5,7 @@ Presents the difference between the skill sets of the 2020-21 vs. 2021-22 Montre
 
 You can use the live app with this [link](https://fluxion-ch.herokuapp.com/).
 
-[](/assets/app_overview.png)
+![](assets/app_overview.png)
 
 ## Getting started
 
